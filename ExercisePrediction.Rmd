@@ -1,6 +1,6 @@
 ---
 title: "Prediction of the manner in which the exercise was done"
-author: "prabhu manickavelu"
+author: "Prabhu Manickavelu"
 date: "2 January 2017"
 output: html_document
 ---
@@ -8,28 +8,83 @@ output: html_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
-```{r warning=FALSE}
+
+## The Question and about the data
+We are going to try predict how a person did the exercise.
+
+There the data consistes of 5 type of doing the same exercise. which is classified is **classe** variable. The following are the classified
+
+* A:- Exactly according to the specification (The correct fashion).
+* B:- Throwing the elbows to the front (The wrong fashion).
+* C:- Lifting the dumbbell only halfway (The wrong fashion).
+* D:- Lowering the dumbbell only halfway (The wrong fashion).
+* E:- Throwing the hips to the front (The wrong fashion).
+
+### Note
+We are not trying to identfy which is the correct fashion. but the fashion used by the person. 
+
+```{r warning=FALSE, message=FALSE}
 library(caret)
-library(rpart) 
-library(rpart.plot)
+library(rpart)
+library(randomForest)
 ```
 
-## R Markdown
+## Getting and reading the training and test data.
+```{r cache=TRUE}
+training <- read.csv(url("http://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv"), na.strings=c("NA","#DIV/0!",""))
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+quize <- read.csv(url("http://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv"), na.strings=c("NA","#DIV/0!",""))
+num_rows <- nrow(training)
+```
+Number of rows of data in training set: **`r num_rows`**
+```{r eval=FALSE}
+summary(training) # The summary is shown in the Annex 
+```
+By Checking the summary there are may columns with lots of *N/A* values
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
-
-```{r cars}
-summary(cars)
+## Cleaning the data by removeing columns with over *30% of N/A values* and unnecessary columns.
+```{r cache=TRUE}
+# Getting all column names
+col_names <- colnames(training) 
+# Removing the known unwanted columns.
+col_names <- col_names[!col_names %in% c("X", "user_name", "new_window")]
+clean_training <- data.frame(training[,col_names])
+# Looping through the columns to find columns with over 30% of N/A values and removing them
+for (col_name in length(col_names):1) {
+    if(sum(is.na(clean_training[,col_name]))/num_rows >= .7){
+        clean_training <- clean_training[,-col_name]
+    }
+}
 ```
 
-## Including Plots
-
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
+## Spliting the data for training and test data 70% training and 30% testing
+```{r cache=TRUE}
+inTrain <- createDataPartition(y=training$classe, p=0.6, list=FALSE)
+clean_training_ds <- clean_training[inTrain,]
+clean_testing_ds <- clean_training[-inTrain,]
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+## Trying out Diffrent algorithms.
+### RPart
+```{r}
+# Training the data
+rpart_fit <- train(classe ~ ., data = clean_training_ds, method="rpart")
+# predecting the test data
+rpart_predict <- predict(rpart_fit, clean_testing_ds[,-58])
+confusionMatrix(rpart_predict, clean_testing_ds$classe)
+```
+
+### RandomForest
+```{r cache=TRUE}
+# Training the data
+rf_fit <- train(classe ~ ., data = clean_training_ds, method="rf")
+# predecting the test data
+rf_predict <- predict(rf_fit, clean_testing_ds[,-58])
+confusionMatrix(rf_predict, clean_testing_ds$classe)
+```
+
+## Annex
+### Summary of the raw training data.
+```{r}
+summary(training) # The summary is shown in the Annex 
+```
