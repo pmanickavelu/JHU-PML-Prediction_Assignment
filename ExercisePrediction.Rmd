@@ -83,9 +83,9 @@ rf_predict <- predict(rf_fit, clean_testing_ds[,-58])
 confusionMatrix(rf_predict, clean_testing_ds$classe)
 ```
 
-After compsring the Accuracy of the two algorithms. the conclusion is that **RandomForest** has the maximum.
+After comparing the Accuracy of the two algorithms. the conclusion is that **RandomForest** has the maximum. and so we'll use it to predicting the quiz set
 
-## Predictin the Quiz data.
+## Predicting the Quiz data.
 ```{r}
 rf_quize_predict <- predict(rf_fit, quiz)
 ```
