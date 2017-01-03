@@ -88,8 +88,8 @@ After compsring the Accuracy of the two algorithms. the conclusion is that **Ran
 ## Predictin the Quiz data.
 ```{r}
 rf_quize_predict <- predict(rf_fit, quiz)
-rf_quize_predict
 ```
+So the predections for the quiz data is as follows `r as.character(rf_quize_predict)`
 
 ## Annex
 ### Summary of the raw training data.

@@ -256,10 +256,8 @@ confusionMatrix(rf_predict, clean_testing_ds$classe)</code></pre>
 </div>
 <div id="predictin-the-quiz-data." class="section level2">
 <h2>Predictin the Quiz data.</h2>
-<pre class="r"><code>rf_quize_predict &lt;- predict(rf_fit, quiz)
-rf_quize_predict</code></pre>
-<pre><code>##  [1] B A B A A E D B A A B C B A E E A B B B
-## Levels: A B C D E</code></pre>
+<pre class="r"><code>rf_quize_predict &lt;- predict(rf_fit, quiz)</code></pre>
+<p>So the predections for the quiz data is as follows B, A, B, A, A, E, D, B, A, A, B, C, B, A, E, E, A, B, B, B</p>
 </div>
 <div id="annex" class="section level2">
 <h2>Annex</h2>
