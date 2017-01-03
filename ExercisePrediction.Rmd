@@ -33,7 +33,7 @@ library(randomForest)
 ```{r cache=TRUE}
 training <- read.csv(url("http://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv"), na.strings=c("NA","#DIV/0!",""))
 
-quize <- read.csv(url("http://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv"), na.strings=c("NA","#DIV/0!",""))
+quiz <- read.csv(url("http://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv"), na.strings=c("NA","#DIV/0!",""))
 num_rows <- nrow(training)
 ```
 Number of rows of data in training set: **`r num_rows`**
@@ -57,7 +57,7 @@ for (col_name in length(col_names):1) {
 }
 ```
 
-## Spliting the data for training and test data 70% training and 30% testing
+## Spliting the data for training and test data 60% training and 40% testing
 ```{r cache=TRUE}
 inTrain <- createDataPartition(y=training$classe, p=0.6, list=FALSE)
 clean_training_ds <- clean_training[inTrain,]
@@ -66,7 +66,7 @@ clean_testing_ds <- clean_training[-inTrain,]
 
 ## Trying out Diffrent algorithms.
 ### RPart
-```{r}
+```{r cache=TRUE}
 # Training the data
 rpart_fit <- train(classe ~ ., data = clean_training_ds, method="rpart")
 # predecting the test data
@@ -81,6 +81,14 @@ rf_fit <- train(classe ~ ., data = clean_training_ds, method="rf")
 # predecting the test data
 rf_predict <- predict(rf_fit, clean_testing_ds[,-58])
 confusionMatrix(rf_predict, clean_testing_ds$classe)
+```
+
+After compsring the Accuracy of the two algorithms. the conclusion is that **RandomForest** has the maximum.
+
+## Predictin the Quiz data.
+```{r}
+rf_quize_predict <- predict(rf_fit, quiz)
+rf_quize_predict
 ```
 
 ## Annex

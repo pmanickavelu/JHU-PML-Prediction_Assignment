@@ -146,7 +146,7 @@ library(randomForest)</code></pre>
 <h2>Getting and reading the training and test data.</h2>
 <pre class="r"><code>training &lt;- read.csv(url(&quot;http://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv&quot;), na.strings=c(&quot;NA&quot;,&quot;#DIV/0!&quot;,&quot;&quot;))
 
-quize &lt;- read.csv(url(&quot;http://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv&quot;), na.strings=c(&quot;NA&quot;,&quot;#DIV/0!&quot;,&quot;&quot;))
+quiz &lt;- read.csv(url(&quot;http://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv&quot;), na.strings=c(&quot;NA&quot;,&quot;#DIV/0!&quot;,&quot;&quot;))
 num_rows &lt;- nrow(training)</code></pre>
 <p>Number of rows of data in training set: <strong>19622</strong></p>
 <pre class="r"><code>summary(training) # The summary is shown in the Annex </code></pre>
@@ -157,7 +157,7 @@ num_rows &lt;- nrow(training)</code></pre>
 <pre class="r"><code># Getting all column names
 col_names &lt;- colnames(training) 
 # Removing the known unwanted columns.
-col_names &lt;- col_names[!col_names %in% c(&quot;X&quot;, &quot;new_window&quot;)]
+col_names &lt;- col_names[!col_names %in% c(&quot;X&quot;, &quot;user_name&quot;, &quot;new_window&quot;)]
 clean_training &lt;- data.frame(training[,col_names])
 # Looping through the columns to find columns with over 30% of N/A values and removing them
 for (col_name in length(col_names):1) {
@@ -166,8 +166,8 @@ for (col_name in length(col_names):1) {
     }
 }</code></pre>
 </div>
-<div id="spliting-the-data-for-training-and-test-data-70-training-and-30-testing" class="section level2">
-<h2>Spliting the data for training and test data 70% training and 30% testing</h2>
+<div id="spliting-the-data-for-training-and-test-data-60-training-and-40-testing" class="section level2">
+<h2>Spliting the data for training and test data 60% training and 40% testing</h2>
 <pre class="r"><code>inTrain &lt;- createDataPartition(y=training$classe, p=0.6, list=FALSE)
 clean_training_ds &lt;- clean_training[inTrain,]
 clean_testing_ds &lt;- clean_training[-inTrain,]</code></pre>
@@ -185,42 +185,81 @@ confusionMatrix(rpart_predict, clean_testing_ds$classe)</code></pre>
 ## 
 ##           Reference
 ## Prediction    A    B    C    D    E
-##          A 1685  329   41   46   16
-##          B  246  858   19    0    0
-##          C   16   64  719   27   85
-##          D  278  267  589 1213  683
-##          E    7    0    0    0  658
+##          A 1466  166    2    0    0
+##          B  371  596  217  461   96
+##          C  360  756 1149  825  654
+##          D    0    0    0    0    0
+##          E   35    0    0    0  692
 ## 
 ## Overall Statistics
 ##                                           
-##                Accuracy : 0.6542          
-##                  95% CI : (0.6436, 0.6647)
+##                Accuracy : 0.4975          
+##                  95% CI : (0.4863, 0.5086)
 ##     No Information Rate : 0.2845          
 ##     P-Value [Acc &gt; NIR] : &lt; 2.2e-16       
 ##                                           
-##                   Kappa : 0.5658          
+##                   Kappa : 0.3699          
 ##  Mcnemar's Test P-Value : NA              
 ## 
 ## Statistics by Class:
 ## 
 ##                      Class: A Class: B Class: C Class: D Class: E
-## Sensitivity            0.7549   0.5652  0.52558   0.9432  0.45631
-## Specificity            0.9230   0.9581  0.97036   0.7230  0.99891
-## Pos Pred Value         0.7959   0.7640  0.78924   0.4003  0.98947
-## Neg Pred Value         0.9045   0.9018  0.90642   0.9848  0.89082
-## Prevalence             0.2845   0.1935  0.17436   0.1639  0.18379
-## Detection Rate         0.2148   0.1094  0.09164   0.1546  0.08386
-## Detection Prevalence   0.2698   0.1431  0.11611   0.3862  0.08476
-## Balanced Accuracy      0.8390   0.7617  0.74797   0.8331  0.72761</code></pre>
+## Sensitivity            0.6568  0.39262   0.8399   0.0000  0.47989
+## Specificity            0.9701  0.81906   0.5994   1.0000  0.99453
+## Pos Pred Value         0.8972  0.34233   0.3069      NaN  0.95186
+## Neg Pred Value         0.8767  0.84898   0.9466   0.8361  0.89465
+## Prevalence             0.2845  0.19347   0.1744   0.1639  0.18379
+## Detection Rate         0.1868  0.07596   0.1464   0.0000  0.08820
+## Detection Prevalence   0.2083  0.22190   0.4772   0.0000  0.09266
+## Balanced Accuracy      0.8134  0.60584   0.7197   0.5000  0.73721</code></pre>
 </div>
 <div id="randomforest" class="section level3">
 <h3>RandomForest</h3>
-<pre class="r"><code># # Training the data
-# rf_fit &lt;- train(classe ~ ., data = clean_training_ds, method=&quot;rf&quot;)
-# # predecting the test data
-# rf_predict &lt;- predict(rf_fit, clean_testing_ds[,-58])
-# confusionMatrix(rf_predict, clean_testing_ds$classe)</code></pre>
+<pre class="r"><code># Training the data
+rf_fit &lt;- train(classe ~ ., data = clean_training_ds, method=&quot;rf&quot;)
+# predecting the test data
+rf_predict &lt;- predict(rf_fit, clean_testing_ds[,-58])
+confusionMatrix(rf_predict, clean_testing_ds$classe)</code></pre>
+<pre><code>## Confusion Matrix and Statistics
+## 
+##           Reference
+## Prediction    A    B    C    D    E
+##          A 2232    0    0    0    0
+##          B    0 1518    2    0    0
+##          C    0    0 1364    0    0
+##          D    0    0    2 1284    1
+##          E    0    0    0    2 1441
+## 
+## Overall Statistics
+##                                           
+##                Accuracy : 0.9991          
+##                  95% CI : (0.9982, 0.9996)
+##     No Information Rate : 0.2845          
+##     P-Value [Acc &gt; NIR] : &lt; 2.2e-16       
+##                                           
+##                   Kappa : 0.9989          
+##  Mcnemar's Test P-Value : NA              
+## 
+## Statistics by Class:
+## 
+##                      Class: A Class: B Class: C Class: D Class: E
+## Sensitivity            1.0000   1.0000   0.9971   0.9984   0.9993
+## Specificity            1.0000   0.9997   1.0000   0.9995   0.9997
+## Pos Pred Value         1.0000   0.9987   1.0000   0.9977   0.9986
+## Neg Pred Value         1.0000   1.0000   0.9994   0.9997   0.9998
+## Prevalence             0.2845   0.1935   0.1744   0.1639   0.1838
+## Detection Rate         0.2845   0.1935   0.1738   0.1637   0.1837
+## Detection Prevalence   0.2845   0.1937   0.1738   0.1640   0.1839
+## Balanced Accuracy      1.0000   0.9998   0.9985   0.9990   0.9995</code></pre>
+<p>After compsring the Accuracy of the two algorithms. the conclusion is that <strong>RandomForest</strong> has the maximum.</p>
 </div>
+</div>
+<div id="predictin-the-quiz-data." class="section level2">
+<h2>Predictin the Quiz data.</h2>
+<pre class="r"><code>rf_quize_predict &lt;- predict(rf_fit, quiz)
+rf_quize_predict</code></pre>
+<pre><code>##  [1] B A B A A E D B A A B C B A E E A B B B
+## Levels: A B C D E</code></pre>
 </div>
 <div id="annex" class="section level2">
 <h2>Annex</h2>
